@@ -48,7 +48,7 @@ class DummyXPlaneApp(QMainWindow):
         self.chk_xplane_running.stateChanged.connect(self.update_running_state)
         self.chk_enable_telemetry.stateChanged.connect(self.update_enable_telemetry)
         self.btn_playback.clicked.connect(self.playback_started)
-
+        self.sld_record.valueChanged.connect(self.update_slider)
         self.heartbeat_udp = UdpReceive(HEARTBEAT_PORT)
         self.telemetry_udp = UdpReceive(TELEMETRY_PORT)
 
@@ -70,6 +70,10 @@ class DummyXPlaneApp(QMainWindow):
     def update_enable_telemetry(self, state):
         self.enable_telemetry = (state == Qt.Checked)
 
+    def update_slider(self, slider_value):
+        self.frame_count = int((slider_value / self.sld_record.maximum()) * self.player.record_count)
+        self.show_curr_rec(self.frame_count)
+        
     def playback_started(self):
         if self.is_playing:
             self.is_playing = False
@@ -82,17 +86,28 @@ class DummyXPlaneApp(QMainWindow):
                 self.icao_code  = self.player.vehicle
                 self.txt_icao.setText(self.icao_code)
                 self.frame_count = 0
+                self.show_curr_rec( self.frame_count)
             except TelemetryError as err:
                 print(f"Cannot start playback: {err}")
                 return
                 
             self.is_playing = True
             self.btn_playback.setText("Stop")
-
+            
+    def show_curr_rec(self, current_rec):
+        if self.player.record_count > 0:
+            value = int((current_rec / self.player.record_count) * self.sld_record.maximum())
+            self.sld_record.blockSignals(True)
+            self.sld_record.setValue(value)
+            self.sld_record.blockSignals(False)
+            self.txt_recno.setText(str(current_rec))
+            
     def send_telemetry(self):
         if self.is_playing and not self.is_paused :
             rec = self.player.playback_service()
-            self.frame_count += 1
+            if self.frame_count < self.player.record_count:
+                self.frame_count += 1
+            self.show_curr_rec(self.frame_count)
             for i in range(6):
                 if i == 2:
                     self.sliders[2].setValue(round(rec[2] * norm_factors[i] * 100))

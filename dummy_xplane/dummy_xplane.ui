@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>494</width>
-    <height>569</height>
+    <height>626</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -483,7 +483,7 @@
    <widget class="QPushButton" name="btn_playback">
     <property name="geometry">
      <rect>
-      <x>340</x>
+      <x>350</x>
       <y>490</y>
       <width>75</width>
       <height>31</height>
@@ -491,6 +491,48 @@
     </property>
     <property name="text">
      <string>Play</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="sld_record">
+    <property name="geometry">
+     <rect>
+      <x>29</x>
+      <y>550</y>
+      <width>441</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>10000</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txt_recno">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>530</y>
+      <width>71</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_13">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>530</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Frame</string>
     </property>
    </widget>
   </widget>

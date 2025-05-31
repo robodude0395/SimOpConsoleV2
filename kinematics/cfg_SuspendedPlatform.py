@@ -8,9 +8,9 @@ class PlatformConfig(object):
     PLATFORM_TYPE = "Inverted Stewart Platform"
     PLATFORM_INVERTED = True
     """
-    For d_to_p lookup, set MUSCLE_PRESSURE_MAPPING_FILE to csv lookup table, 
+    When using d_to_p lookup, set MUSCLE_PRESSURE_MAPPING_FILE to csv lookup table, 
        and set MUSCLE_PRESSURE_ML_MODEL to none
-    For d_to_P using pretrained ML model, set  MUSCLE_PRESSURE_ML_MODEL to model file
+    When using d_to_P using pretrained ML model, set  MUSCLE_PRESSURE_ML_MODEL to model file
        and set MUSCLE_PRESSURE_MAPPING_FILE to None
     """   
     MUSCLE_PRESSURE_MAPPING_FILE = None # 'output/chair_DtoP.csv'    
@@ -18,7 +18,6 @@ class PlatformConfig(object):
 
     PLATFORM_CLEARANCE_OFFSET = 50  # Minimum clearance in mm between platform and base when active
     PLATFORM_LOWEST_Z = -1085       # Z offset of platform when muscles are at full extension (max length)
-
 
     def __init__(self):
        

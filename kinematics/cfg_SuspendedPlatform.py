@@ -7,8 +7,14 @@ class PlatformConfig(object):
     PLATFORM_NAME = "Falcon chair"
     PLATFORM_TYPE = "Inverted Stewart Platform"
     PLATFORM_INVERTED = True
-    # MUSCLE_PRESSURE_MAPPING_FILE = 'output/chair_DtoP.csv'
-    MUSCLE_PRESSURE_MAPPING_FILE = "output/inverse_model_scaled.pkl"
+    """
+    For d_to_p lookup, set MUSCLE_PRESSURE_MAPPING_FILE to csv lookup table, 
+       and set MUSCLE_PRESSURE_ML_MODEL to none
+    For d_to_P using pretrained ML model, set  MUSCLE_PRESSURE_ML_MODEL to model file
+       and set MUSCLE_PRESSURE_MAPPING_FILE to None
+    """   
+    MUSCLE_PRESSURE_MAPPING_FILE = None # 'output/chair_DtoP.csv'    
+    MUSCLE_PRESSURE_ML_MODEL = "output/inverse_model_scaled.pkl"
 
     PLATFORM_CLEARANCE_OFFSET = 50  # Minimum clearance in mm between platform and base when active
     PLATFORM_LOWEST_Z = -1085       # Z offset of platform when muscles are at full extension (max length)

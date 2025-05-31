@@ -6,7 +6,7 @@ from joblib import load
 
 log = logging.getLogger(__name__)
 
-# Single muscle class which handles the pressure each muscle should have
+# Single muscle class which handles the distance to pressure conversion
 class Muscle:
     def __init__(self, smoothing_factor=0.3):
         self.model, self.pressure_min, self.pressure_max = None, None, None
@@ -53,52 +53,26 @@ class Muscle:
         self.model, self.pressure_min, self.pressure_max = model
 
 
-# Class that wraps the 6 muscles into a single class from which the pressures can be obtained
-class Platform_Muscles:
-    def __init__(self):
-        self.muscles = [Muscle() for _ in range(6)]
-        self.load = 24
-        self.last_frame_time = None
-
-    def distance_to_pressures(self, distances):
-        if(self.last_frame_time == None):
-            self.last_frame_time = time.perf_counter()
-            return 0
-
-        current_time = time.perf_counter()
-        dt = current_time - self.last_frame_time
-        self.last_frame_time = current_time
-        
-        print(dt)
-
-        return [max(0, min(6000, muscle.get_pressure(distance, dt)))
-                for muscle, distance in zip(self.muscles, distances)]
-    
-    def set_payload_per_muscle(self, nload):
-        self.load = nload
-        for muscle in self.muscles:
-            muscle.load = self.load
-        print(self.muscles[0].load)
-
-
-#Shell class that implements my ANN platform_muscle class. This allows my code to be seamlesslyintegrated into the rest of the SimOpConsole.
+NBR_MUSCLES = 6
+#class converts muscle lengths to pressure using ANN platform_muscle class. 
 class DistanceToPressure:
-    def __init__(self, nbr_columns, max_length):
-        self.nbr_columns = nbr_columns
-        self.platform = Platform_Muscles()
-        self.platform.set_payload_per_muscle(24)
-        self.max_muscle_lengths = np.full(6, max_length, dtype=int)
-        
-        
+    def __init__(self, max_compression, max_length):
+        self.muscles = [Muscle() for _ in range(NBR_MUSCLES)]
+        self.max_muscle_lengths = np.full(NBR_MUSCLES, max_length)
+        self.last_frame_time = None
+        self.load = 24
+
     def load_data(self, file_path):
-        #Load data with ANN loads ANN model
-        print(file_path)
+        #Load ANN model and set this for each muscle  
+        log.info(f"Loading model from: {file_path}")  
         model = load(file_path)
-        for muscle in self.platform.muscles:
+        for muscle in self.muscles:
             muscle.set_model(model)
-            
+
     def set_load(self, load):
-        self.platform.set_payload_per_muscle(load/6)
+        self.load = load
+        for muscle in self.muscles:
+            muscle.load = load
 
     def muscle_length_to_pressure(self, muscle_lengths):
         muscle_lengths = np.asarray(muscle_lengths, dtype=int)
@@ -106,9 +80,20 @@ class DistanceToPressure:
             raise ValueError("Invalid number of muscle lengths")
         muscle_compressions =  self.max_muscle_lengths - muscle_lengths
         return self.muscle_compression_to_pressure(muscle_compressions)
-    
+        
     def muscle_compression_to_pressure(self, compressions):
-       return self.platform.distance_to_pressures(compressions)
+        now = time.perf_counter()
+        if self.last_frame_time is None:
+            self.last_frame_time = now
+            return [0] * len(self.muscles)
+
+        dt = now - self.last_frame_time
+        self.last_frame_time = now
+
+        return [
+            muscle.get_pressure(compression, dt)
+            for muscle, compression in zip(self.muscles, compressions)
+        ]
 
 # ---------------------------------------------------------
 # Test harness
